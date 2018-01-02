@@ -1,0 +1,23 @@
+{
+  "name": "arbitrage-push",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carstenhag/arbitrage-push.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/carstenhag/arbitrage-push/issues"
+  },
+  "homepage": "https://github.com/carstenhag/arbitrage-push#readme",
+  "dependencies": {
+    "cron": "^1.3.0",
+    "pushbullet": "^2.1.0"
+  }
+}
