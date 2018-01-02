@@ -1,9 +1,9 @@
 let https = require('https');
 var CronJob = require('cron').CronJob;
 let PushBullet = require('pushbullet');
-let pusher = new PushBullet('');
+let pusher = new PushBullet(''); // API key of the account
 
-let channelTagObject = {channel_tag: 'arbitrage'}
+let channelTagObject = {channel_tag: 'arbitrage'} // exchange for own tag, or simply use device ID as string (not inside an object)
 
 var calc = {
     priceHigh: null,
