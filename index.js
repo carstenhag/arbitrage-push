@@ -27,14 +27,8 @@ var job = new CronJob('00 */4 8-24 * * *', async() => {
 false
 );
 
-pusher.note(channelTagObject, 'Arbitrage', "ayylmao channel msg", function(error, response) {
-    if(error) {
-        console.log(error)
-    }
-});
-
-//job.start()
-//console.log('Started Cronjob!')
+job.start()
+console.log('Started Cronjob!')
 
 async function calculateProfits() {
     try {
