@@ -108,17 +108,25 @@ function getPrices (tradePair) {
             res1.on('data', (chunk1) => {
                 body1.push(chunk1)        
             }).on('end', () => {
-                body1 = Buffer.concat(body1).toString();
 
-                calc.priceHigh = JSON.parse(body1).result.price
+                body1 = Buffer.concat(body1).toString();
+                try {
+                    calc.priceHigh = JSON.parse(body1).result.price
+                } catch (e) {
+                    resolve(e)
+                }
 
                 https.get(corsPrefix + 'markets/kraken/' + tradePair + '/price', (res2) => {
                     res2.on('data', (chunk2) => {
                         body2.push(chunk2)        
                     }).on('end', () => {
-                        body2 = Buffer.concat(body2).toString();
 
-                        calc.priceLow = JSON.parse(body2).result.price
+                        body2 = Buffer.concat(body2).toString();
+                        try {
+                            calc.priceLow = JSON.parse(body2).result.price
+                        } catch (e) {
+                            resolve(e)
+                        }
                         calc.tradePair = tradePair
                         resolve(null)
                     });
