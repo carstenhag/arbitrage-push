@@ -17,7 +17,7 @@ var calc = {
     tradePair: null
 }
 
-var job = new CronJob('00 */4 8-24 * * *', async() => {
+var job = new CronJob('00 */12 8-24 * * *', async() => {
 
     calculateProfits()
 
@@ -27,6 +27,7 @@ var job = new CronJob('00 */4 8-24 * * *', async() => {
 false
 );
 
+calculateProfits()
 job.start()
 console.log('Started Cronjob!')
 
@@ -37,26 +38,30 @@ async function calculateProfits() {
 
         // improvement to DRY: for .. enabledPair { calculate }
 
-        await getCalculations('LTCEUR')
+        var error = await getPrices('LTCEUR')
+        if(error) {
+            console.log(getDateString() + JSON.stringify(error))
+            return
+        }
         calculate()
         if(calc.profit > profitThreshold) msg += constructMessage(calc) + '\n'
 
         /*
-        await getCalculations('ETHEUR')
+        await getPrices('ETHEUR')
         calculate()
         if(calc.profit > profitThreshold) msg += constructMessage(calc) + '\n'
 
-        await getCalculations('BTCEUR')
+        await getPrices('BTCEUR')
         calculate()
         if(calc.profit > profitThreshold) msg += constructMessage(calc) + '\n'
         */
-        let timestamp = '[' + Date.now() + '] ';
+
         if(!isEmpty(msg)) {
             msg = msg.trim()
             sendPush(msg)
-            console.log(timestamp + 'Message sent: ' + msg)
+            console.log(getDateString() + 'Message sent: ' + msg)
         } else {
-            console.log(timestamp + 'No currency arbitrage would have given a profit of at least 25€')
+            console.log(getDateString() + 'No currency arbitrage would have given a profit of at least 25€')
         }
 
     } catch(err) {
@@ -67,9 +72,15 @@ async function calculateProfits() {
 function sendPush(message) {
     pusher.note(channelTagObject, 'Arbitrage', message, function(error, response) {
         if(error) {
-            console.log(error)
+            console.log(getDateString() + JSON.stringify(error))
         }
     });
+}
+
+function getDateString () {
+    let d = new Date();
+    return datestring = ("0" + d.getDate()).slice(-2) + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" +
+                     d.getFullYear() + " " + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ' ';
 }
 
 function constructMessage (calc) {
@@ -87,7 +98,7 @@ function calculate () {
     calc.profitPercentage = calc.profit / calc.tradeVolumeFiat * 100
 }
 
-function getCalculations (tradePair) {
+function getPrices (tradePair) {
     return new Promise(resolve => {
         const corsPrefix = 'https://proxy-arbitrage.chagemann.de/'
 
@@ -112,12 +123,12 @@ function getCalculations (tradePair) {
                         resolve(null)
                     });
                 })
-            }).on('error', (e) => { 
-                console.error(e);
+            }).on('error', (e) => {
+                resolve(e)
             });
 
-        }).on('error', (e) => { 
-            console.error(e);
+        }).on('error', (e) => {
+            resolve(e)
         });
 
     })
