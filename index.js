@@ -61,7 +61,7 @@ async function calculateProfits() {
             sendPush(msg)
             console.log(getDateString() + 'Message sent: ' + msg)
         } else {
-            console.log(getDateString() + 'No currency arbitrage would have given a profit of at least 25€')
+            console.log(getDateString() + 'No currency arbitrage would have given a profit of at least ' + formatEur(profitThreshold))
         }
 
     } catch(err) {
