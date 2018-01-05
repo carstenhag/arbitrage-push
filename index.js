@@ -17,7 +17,7 @@ var calc = {
     tradePair: null
 }
 
-var job = new CronJob('00 */12 8-24 * * *', async() => {
+var job = new CronJob('00 */5 8-24 * * *', async() => {
 
     calculateProfits()
 
