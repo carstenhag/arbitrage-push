@@ -36,25 +36,17 @@ async function calculateProfits() {
         var msg = ''
         let profitThreshold = 15
 
-        // improvement to DRY: for .. enabledPair { calculate }
+        let enabledPairs = ['LTCEUR', 'ETHEUR']
 
-        var error = await getPrices('LTCEUR')
-        if(error) {
-            console.log(getDateString() + JSON.stringify(error))
-            return
+        for (let pair of enabledPairs) {
+            var error = await getPrices(pair)
+            if(error) {
+                console.log(getDateString() + JSON.stringify(error))
+                return
+            }
+            calculate()
+            if(calc.profit > profitThreshold) msg += constructMessage(calc) + '\n'
         }
-        calculate()
-        if(calc.profit > profitThreshold) msg += constructMessage(calc) + '\n'
-
-        /*
-        await getPrices('ETHEUR')
-        calculate()
-        if(calc.profit > profitThreshold) msg += constructMessage(calc) + '\n'
-
-        await getPrices('BTCEUR')
-        calculate()
-        if(calc.profit > profitThreshold) msg += constructMessage(calc) + '\n'
-        */
 
         if(!isEmpty(msg)) {
             msg = msg.trim()
@@ -88,7 +80,6 @@ function constructMessage (calc) {
 }
 
 function calculate () {
-
     var amountCrypto = calc.tradeVolumeFiat / calc.priceLow
     amountCrypto = amountCrypto * (100 - calc.exchangeFeePercentage) / 100
     amountCrypto = amountCrypto - calc.withdrawFeeCrypto
