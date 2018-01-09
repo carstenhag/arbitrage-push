@@ -34,7 +34,7 @@ console.log('Started Cronjob!')
 async function calculateProfits() {
     try {
         var msg = ''
-        let profitThreshold = 22.50
+        let profitThreshold = 15
 
         // improvement to DRY: for .. enabledPair { calculate }
 
