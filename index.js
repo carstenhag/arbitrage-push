@@ -8,6 +8,8 @@ let channelTagObject = {channel_tag: 'arbitrage'} // exchange for own tag, or si
 var calc = {
     priceHigh: null,
     priceLow: null,
+    priceTemp0: null,
+    priceTemp1: null,
     profit: null,
     profitPercentage: null,
     withdrawFeeCrypto: 0.001,
@@ -34,7 +36,7 @@ console.log('Started Cronjob!')
 async function calculateProfits() {
     try {
         var msg = ''
-        let profitThreshold = 15
+        let profitThreshold = 10
 
         let enabledPairs = ['LTCEUR', 'ETHEUR']
 
@@ -76,10 +78,19 @@ function getDateString () {
 }
 
 function constructMessage (calc) {
-    return 'Gewinn ' + calc.tradePair + ': ' +  formatEur(calc.profit) + ' — ' + formatPercentage(calc.profitPercentage)
+    return 'Gewinn ' + calc.tradePair + ': ' +  formatEur(calc.profit) + ' — ' + formatPercentage(calc.profitPercentage) + " Kauf " + (gdaxPricierThanKraken() ? "Kraken" : "GDAX")
 }
 
 function calculate () {
+
+    if (calc.priceTemp0 > calc.priceTemp1) {
+        calc.priceHigh = calc.priceTemp0
+        calc.priceLow = calc.priceTemp1
+    } else {
+        calc.priceHigh = calc.priceTemp1
+        calc.priceLow = calc.priceTemp0
+    }
+
     var amountCrypto = calc.tradeVolumeFiat / calc.priceLow
     amountCrypto = amountCrypto * (100 - calc.exchangeFeePercentage) / 100
     amountCrypto = amountCrypto - calc.withdrawFeeCrypto
@@ -87,6 +98,10 @@ function calculate () {
     let fiatAmount = amountCrypto * calc.priceHigh
     calc.profit = fiatAmount - calc.tradeVolumeFiat - calc.withdrawFeeFiat
     calc.profitPercentage = calc.profit / calc.tradeVolumeFiat * 100
+}
+
+function gdaxPricierThanKraken () {
+    return calc.priceTemp0 > calc.priceTemp1
 }
 
 function getPrices (tradePair) {
@@ -102,7 +117,7 @@ function getPrices (tradePair) {
 
                 body1 = Buffer.concat(body1).toString();
                 try {
-                    calc.priceHigh = JSON.parse(body1).result.price
+                    calc.priceTemp0 = JSON.parse(body1).result.price
                 } catch (e) {
                     resolve(e)
                 }
@@ -114,7 +129,7 @@ function getPrices (tradePair) {
 
                         body2 = Buffer.concat(body2).toString();
                         try {
-                            calc.priceLow = JSON.parse(body2).result.price
+                            calc.priceTemp1 = JSON.parse(body2).result.price
                         } catch (e) {
                             resolve(e)
                         }
